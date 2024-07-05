@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, NodeProps } from 'reactflow';
 
 const nodeStyles = {
   padding: '10px',
@@ -21,7 +21,40 @@ const selectStyles = {
   width: '90%',
 };
 
-export const BatteryNode = ({ data }) => (
+interface BatteryData {
+  voltage: number;
+}
+
+interface LEDData {
+  on: boolean;
+}
+
+interface SwitchData {
+  on: boolean;
+  toggle: () => void;
+}
+
+interface ResistorData {
+  resistance: number;
+}
+
+interface CapacitorData {
+  capacitance: number;
+}
+
+interface InductorData {
+  inductance: number;
+}
+
+interface AmMeterData {
+  current: number;
+}
+
+interface VoltMeterData {
+  voltage: number;
+}
+
+export const BatteryNode: React.FC<NodeProps<BatteryData>> = ({ data }) => (
   <div style={{
     ...nodeStyles,
     background: 'linear-gradient(to right, #f4f4f4 50%, #e0e0e0 50%)',
@@ -34,7 +67,7 @@ export const BatteryNode = ({ data }) => (
   </div>
 );
 
-export const LEDNode = ({ data }) => (
+export const LEDNode: React.FC<NodeProps<LEDData>> = ({ data }) => (
   <div style={{
     ...nodeStyles,
     background: '#f4f4f4',
@@ -62,7 +95,7 @@ export const LEDNode = ({ data }) => (
   </div>
 );
 
-export const SwitchNode = ({ data }) => (
+export const SwitchNode: React.FC<NodeProps<SwitchData>> = ({ data }) => (
   <div style={{
     ...nodeStyles,
     background: '#f4f4f4',
@@ -75,16 +108,17 @@ export const SwitchNode = ({ data }) => (
   </div>
 );
 
-export const ResistorNode = ({ data }) => {
+export const ResistorNode: React.FC<NodeProps<ResistorData>> = ({ data }) => {
   const [resistance, setResistance] = useState(data.resistance);
   const resistanceOptions = [10, 100, 220, 330, 1000, 10000];
 
   return (
-  <div style={{
-    ...nodeStyles,
-    background: '#f4f4f4',
-    border: '2px solid #666',
-  }}>      <div>Resistor</div>
+    <div style={{
+      ...nodeStyles,
+      background: '#f4f4f4',
+      border: '2px solid #666',
+    }}>
+      <div>Resistor</div>
       <select 
         value={resistance} 
         onChange={(e) => setResistance(Number(e.target.value))}
@@ -101,7 +135,7 @@ export const ResistorNode = ({ data }) => {
   );
 };
 
-export const CapacitorNode = ({ data }) => {
+export const CapacitorNode: React.FC<NodeProps<CapacitorData>> = ({ data }) => {
   const [capacitance, setCapacitance] = useState(data.capacitance);
   const capacitanceOptions = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1];
 
@@ -128,7 +162,7 @@ export const CapacitorNode = ({ data }) => {
   );
 };
 
-export const InductorNode = ({ data }) => {
+export const InductorNode: React.FC<NodeProps<InductorData>> = ({ data }) => {
   const [inductance, setInductance] = useState(data.inductance);
   const inductanceOptions = [0.001, 0.01, 0.1, 1, 10, 100];
 
@@ -155,7 +189,7 @@ export const InductorNode = ({ data }) => {
   );
 };
 
-export const AmMeterNode = ({ data }) => (
+export const AmMeterNode: React.FC<NodeProps<AmMeterData>> = ({ data }) => (
   <div style={{
     ...nodeStyles,
     background: '#f4f4f4',
@@ -169,7 +203,7 @@ export const AmMeterNode = ({ data }) => (
   </div>
 );
 
-export const VoltMeterNode = ({ data }) => (
+export const VoltMeterNode: React.FC<NodeProps<VoltMeterData>> = ({ data }) => (
   <div style={{
     ...nodeStyles,
     background: '#f4f4f4',

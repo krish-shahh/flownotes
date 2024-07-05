@@ -4,7 +4,15 @@ import NextImage from 'next/image';
 import { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 
-const productFeatures = [
+type FeatureName = 'Notes' | 'Mind Maps' | 'Simulations' | 'Templates' | 'File Management';
+
+interface ProductFeature {
+  name: FeatureName;
+  icon: string;
+  screenshot: string;
+}
+
+const productFeatures: ProductFeature[] = [
   { name: 'Notes', icon: '/icons/notes-icon.svg', screenshot: '/gifs/notes-demo.gif' },
   { name: 'Mind Maps', icon: '/icons/note-webs-icon.svg', screenshot: '/gifs/mind-maps-demo.gif' },
   { name: 'Simulations', icon: '/icons/simulations-icon.svg', screenshot: '/gifs/simulations-demo.gif' },
@@ -13,7 +21,7 @@ const productFeatures = [
 ];
 
 export function ProductNavigation() {
-  const [activeFeature, setActiveFeature] = useState(productFeatures[0]);
+  const [activeFeature, setActiveFeature] = useState<ProductFeature>(productFeatures[0]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -59,7 +67,7 @@ export function ProductNavigation() {
   );
 }
 
-function getFeatureDescription(featureName) {
+function getFeatureDescription(featureName: FeatureName): string {
   switch (featureName) {
     case 'Notes':
       return "Create and organize your notes with our powerful rich text editor.";

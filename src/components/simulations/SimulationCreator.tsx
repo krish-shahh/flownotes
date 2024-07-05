@@ -16,6 +16,9 @@ import ReactFlow, {
   MarkerType,
   EdgeTypes,
   SmoothStepEdge,
+  NodeChange,
+  EdgeChange,
+  EdgeProps,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -47,7 +50,7 @@ const customEdgeStyle = {
   strokeWidth: 2,
 };
 
-const CustomEdge = (props) => (
+const CustomEdge = (props: EdgeProps) => (
   <SmoothStepEdge {...props} style={customEdgeStyle} />
 );
 
@@ -65,12 +68,12 @@ const SimulationCreatorInner = () => {
   const circuitStateRef = useRef({ isClosed: false });
 
   const onNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
   );
 
   const onEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     []
   );
 
@@ -86,19 +89,19 @@ const SimulationCreatorInner = () => {
     []
   );
 
-  const onDragOver = useCallback((event: React.DragEvent) => {
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
   const onDrop = useCallback(
-    (event: React.DragEvent) => {
+    (event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
       const type = event.dataTransfer.getData('application/reactflow');
       const position = { x: event.clientX, y: event.clientY };
       
-      let newNode;
+      let newNode: Node;
       const newId = getId();
       switch (type) {
         case 'battery':
