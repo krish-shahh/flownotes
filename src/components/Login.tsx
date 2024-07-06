@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { auth } from '../lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, signInWithCustomToken } from 'firebase/auth';
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [codeSent, setCodeSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    const setInputRef = useCallback((index: number) => (el: HTMLInputElement | null) => {
+        inputRefs.current[index] = el;
+    }, []);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -152,7 +156,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       onKeyDown={(e) => handleKeyDown(index, e)}
                       onPaste={handlePaste}
                       className="w-10 text-center"
-                      ref={(el) => (inputRefs.current[index] = el)}
+                      ref={setInputRef(index)}
                     />
                   ))}
                 </div>
