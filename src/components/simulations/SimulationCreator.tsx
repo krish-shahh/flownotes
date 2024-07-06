@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ReactFlow, {
   Controls,
-  MiniMap,
   Background,
   applyEdgeChanges,
   applyNodeChanges,
@@ -32,7 +31,7 @@ import {
   AmMeterNode, 
   VoltMeterNode 
 } from './CircuitNodes';
-import { Sidebar } from './Sidebar';
+import Sidebar from './Sidebar';
 
 const nodeTypes = {
   battery: BatteryNode,
@@ -89,19 +88,19 @@ const SimulationCreatorInner = () => {
     []
   );
 
-  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
   const onDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
+    (event: React.DragEvent) => {
       event.preventDefault();
 
       const type = event.dataTransfer.getData('application/reactflow');
       const position = { x: event.clientX, y: event.clientY };
       
-      let newNode: Node;
+      let newNode;
       const newId = getId();
       switch (type) {
         case 'battery':
@@ -207,10 +206,15 @@ const SimulationCreatorInner = () => {
         );
       }
     }
+
+    // Here you would add logic for other components like resistors, capacitors, etc.
+    // This might involve calculating voltages, currents, and other circuit properties
+    // based on the connections and component values.
+
   }, [nodes, edges]);
 
   return (
-    <div style={{ width: '100vw', height: '93vh' }}>
+    <div style={{ width: '100%', height: '100%' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -223,7 +227,6 @@ const SimulationCreatorInner = () => {
         edgeTypes={edgeTypes}
         defaultEdgeOptions={{ type: 'custom' }}
       >
-        <MiniMap />
         <Controls />
         <Background />
       </ReactFlow>
