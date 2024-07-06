@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase-admin';
 import nodemailer from 'nodemailer';
+import { addMinutes } from 'date-fns';
 
 function generateRandomCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -9,19 +10,30 @@ function generateRandomCode(): string {
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
-
     const code = generateRandomCode();
-    
-    // Store the code in Firebase Authentication custom claims
-    await adminAuth.getUserByEmail(email)
-      .then((user) => {
-        return adminAuth.setCustomUserClaims(user.uid, { signInCode: code });
-      })
-      .catch(() => {
+    const expirationTime = addMinutes(new Date(), 10).getTime(); // Store as timestamp
+
+    let user;
+    try {
+      user = await adminAuth.getUserByEmail(email);
+    } catch (error: unknown) {
+      const firebaseError = error as { code?: string };
+      if (firebaseError.code === 'auth/user-not-found') {
         // If the user doesn't exist, create a new user
-        return adminAuth.createUser({ email })
-          .then((user) => adminAuth.setCustomUserClaims(user.uid, { signInCode: code }));
-      });
+        user = await adminAuth.createUser({
+          email,
+          emailVerified: false,
+          password: Math.random().toString(36).slice(-8), // Generate a random password
+          displayName: email.split('@')[0],
+          disabled: false,
+        });
+      } else {
+        throw error;
+      }
+    }
+
+    // Store the code and expiration time in custom claims
+    await adminAuth.setCustomUserClaims(user.uid, { signInCode: code, signInCodeExpiry: expirationTime });
 
     // Setup nodemailer transporter
     const transporter = nodemailer.createTransport({
@@ -39,12 +51,13 @@ export async function POST(request: Request) {
       from: `"Your App" <${process.env.EMAIL_SERVER_USER}>`,
       to: email,
       subject: 'FlowNotes Sign-In Code',
-      html: `<p>Your sign-in code is: <strong>${code}</strong></p><p>This code will expire in 15 minutes.</p>`,
+      html: `<p>Your sign-in code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`,
     });
 
     return NextResponse.json({ message: 'Sign-in code sent successfully' });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error sending sign-in code:', error);
-    return NextResponse.json({ error: 'Failed to send sign-in code' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send sign-in code';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
