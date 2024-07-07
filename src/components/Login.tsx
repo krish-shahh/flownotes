@@ -2,12 +2,13 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { auth } from '../lib/firebase';
-import { signInWithPopup, GoogleAuthProvider, signInWithCustomToken } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, signInWithCustomToken, TwitterAuthProvider } from 'firebase/auth';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Twitter } from 'lucide-react';
+
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -32,6 +33,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     } catch (error) {
       console.error('Error signing in with Google:', error);
       setError('Failed to sign in with Google. Please try again.');
+    }
+  };
+
+  const signInWithTwitter = async () => {
+    const provider = new TwitterAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      onLoginSuccess();
+    } catch (error) {
+      console.error('Error signing in with Twitter:', error);
+      setError('Failed to sign in with Twitter. Please try again.');
     }
   };
 
@@ -111,62 +123,71 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <Card className="w-[350px] mx-auto mt-10">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Choose your preferred sign-in method</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <Button onClick={signInWithGoogle} className="w-full mb-4">Sign in with Google</Button>
-        {!codeSent ? (
-          <form onSubmit={sendSignInCode}>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
+    <div className="w-full max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Sign In</h2>
+      <p className="text-gray-600 mb-6">Choose your preferred sign-in method</p>
+      
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      <Button onClick={signInWithGoogle} className="w-full mb-6">Sign in with Google</Button>
+
+      <Button onClick={signInWithTwitter} className="w-full mb-6 bg-[#1DA1F2] hover:bg-[#1a91da]">
+        <Twitter className="mr-2 h-4 w-4" />
+        Sign in with Twitter
+      </Button>
+      
+      <div className="relative mb-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t"></span>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">OR</span>
+        </div>
+      </div>
+  
+      {!codeSent ? (
+        <form onSubmit={sendSignInCode}>
+          <div className="mb-4">
+            <Input 
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="w-full"
+            />
+          </div>
+          <Button type="submit" className="w-full">Send Sign-In Code</Button>
+        </form>
+      ) : (
+        <form onSubmit={verifySignInCode}>
+          <div className="mb-4">
+            <Label htmlFor="code" className="block mb-2">Verification Code</Label>
+            <div className="flex justify-between">
+              {code.map((digit, index) => (
+                <Input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleCodeChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={handlePaste}
+                  className="w-10 text-center"
+                  ref={setInputRef(index)}
                 />
-              </div>
+              ))}
             </div>
-            <Button type="submit" className="w-full mt-4">Send Sign-In Code</Button>
-          </form>
-        ) : (
-          <form onSubmit={verifySignInCode}>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="code">Verification Code</Label>
-                <div className="flex justify-between">
-                  {code.map((digit, index) => (
-                    <Input
-                      key={index}
-                      type="text"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleCodeChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(index, e)}
-                      onPaste={handlePaste}
-                      className="w-10 text-center"
-                      ref={setInputRef(index)}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-            <Button type="submit" className="w-full mt-4">Verify Code</Button>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+          </div>
+          <Button type="submit" className="w-full">Verify Code</Button>
+        </form>
+      )}
+    </div>
   );
 };
 

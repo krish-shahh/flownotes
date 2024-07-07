@@ -1,21 +1,52 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { ProductNavigation } from "@/components/ProductNavigation";
+import Login from '@/components/Login'; // Ensure this path is correct
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { auth } from '@/lib/firebase'; // Make sure this path is correct
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Home: React.FC = () => {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push('/dashboard');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLoginSuccess = () => {
+    setIsLoginOpen(false);
+    router.push('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">
       <header className="py-6 px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between">
           <div className="text-2xl font-bold text-gray-900">FlowNotes</div>
           <div>
-            <Link href="/login" className="text-gray-600 hover:text-gray-900 mr-4">
-              Login
-            </Link>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+              <DialogTrigger asChild>
+                <Button>Login</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <Login onLoginSuccess={handleLoginSuccess} />
+              </DialogContent>
+            </Dialog>
           </div>
         </nav>
       </header>
@@ -29,8 +60,8 @@ const Home: React.FC = () => {
             Enhance your note-taking experience with integrated simulations and interconnected note webs.
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <Button className="w-full sm:w-auto" asChild>
-              <Link href="/dashboard">Get Started</Link>
+            <Button className="w-full sm:w-auto" onClick={() => setIsLoginOpen(true)}>
+              Get Started
             </Button>
           </div>
         </div>

@@ -1,22 +1,49 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SimulationCreator from '@/components/simulations/SimulationCreator';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Home, LogOut, FlaskConical, Menu } from 'lucide-react';
+import { auth } from '@/lib/firebase'; // Make sure this path is correct
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { LoadingSpinner } from '@/components/misc/LoadingSpinner';
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState<'home' | 'simulations'>('home');
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const handleLogout = () => {
-    // Implement your logout logic here
-    console.log('Logout clicked');
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLoading(false);
+      } else {
+        router.push('/');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner className="w-12 h-12 text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-screen flex">
@@ -27,12 +54,12 @@ export default function DashboardPage() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[200px] sm:w-[240px]">
-          <SidebarContent activeView={activeView} setActiveView={setActiveView} />
+          <SidebarContent activeView={activeView} setActiveView={setActiveView} handleLogout={handleLogout} />
         </SheetContent>
       </Sheet>
 
       <div className="hidden md:flex flex-col w-[200px] p-4 bg-gray-100">
-        <SidebarContent activeView={activeView} setActiveView={setActiveView} />
+        <SidebarContent activeView={activeView} setActiveView={setActiveView} handleLogout={handleLogout} />
       </div>
 
       <div className="flex-grow overflow-auto p-4">
@@ -51,14 +78,10 @@ export default function DashboardPage() {
 interface SidebarContentProps {
   activeView: 'home' | 'simulations';
   setActiveView: (view: 'home' | 'simulations') => void;
+  handleLogout: () => void;
 }
 
-function SidebarContent({ activeView, setActiveView }: SidebarContentProps) {
-  const handleLogout = () => {
-    // Implement your logout logic here
-    console.log('Logout clicked');
-  };
-
+function SidebarContent({ activeView, setActiveView, handleLogout }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="text-2xl font-bold mb-8">FlowNotes</div>

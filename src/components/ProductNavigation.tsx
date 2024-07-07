@@ -3,21 +3,22 @@
 import NextImage from 'next/image';
 import { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { LucideIcon, FileText, Network, FlaskConical, FileCode, FolderOpen } from 'lucide-react';
 
 type FeatureName = 'Notes' | 'Mind Maps' | 'Simulations' | 'Templates' | 'File Management';
 
 interface ProductFeature {
   name: FeatureName;
-  icon: string;
+  icon: LucideIcon;
   screenshot: string;
 }
 
 const productFeatures: ProductFeature[] = [
-  { name: 'Notes', icon: '/icons/notes-icon.svg', screenshot: '/gifs/notes-demo.gif' },
-  { name: 'Mind Maps', icon: '/icons/note-webs-icon.svg', screenshot: '/gifs/mind-maps-demo.gif' },
-  { name: 'Simulations', icon: '/icons/simulations-icon.svg', screenshot: '/gifs/simulations-demo.gif' },
-  { name: 'Templates', icon: '/icons/templates-icon.svg', screenshot: '/gifs/templates-demo.gif' },
-  { name: 'File Management', icon: '/icons/files-icon.svg', screenshot: '/gifs/file-management-demo.gif' },
+  { name: 'Notes', icon: FileText, screenshot: '/gifs/notes-demo.gif' },
+  { name: 'Mind Maps', icon: Network, screenshot: '/gifs/mind-maps-demo.gif' },
+  { name: 'Simulations', icon: FlaskConical, screenshot: '/gifs/simulations-demo.gif' },
+  { name: 'Templates', icon: FileCode, screenshot: '/gifs/templates-demo.gif' },
+  { name: 'File Management', icon: FolderOpen, screenshot: '/gifs/file-management-demo.gif' },
 ];
 
 export function ProductNavigation() {
@@ -40,7 +41,7 @@ export function ProductNavigation() {
             className={`flex flex-col items-center ${activeFeature.name === feature.name ? 'text-blue-600' : 'text-gray-400'}`}
             onClick={() => setActiveFeature(feature)}
           >
-            <NextImage src={feature.icon} alt={feature.name} width={24} height={24} />
+            <feature.icon className="w-6 h-6" />
             <span className="mt-2 text-sm">{feature.name}</span>
           </button>
         ))}
