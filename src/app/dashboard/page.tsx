@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SimulationCreator from '@/components/simulations/SimulationCreator';
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, LogOut, FlaskConical, Menu } from 'lucide-react';
-import { auth } from '@/lib/firebase'; // Make sure this path is correct
+import { Input } from "@/components/ui/input";
+import { Home, LogOut, FlaskConical, Settings, ChevronDown, Plus, Search } from 'lucide-react';
+import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { LoadingSpinner } from '@/components/misc/LoadingSpinner';
+import SimulationCreator from '@/components/simulations/SimulationCreator';
 
 export default function DashboardPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'home' | 'simulations'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'simulations' | 'settings'>('home');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -46,67 +45,109 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="w-full h-screen flex">
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden absolute top-4 left-4 z-50">
-            <Menu className="h-4 w-4" />
+    <div className="flex h-screen bg-white">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-100 border-r border-gray-200 flex flex-col">
+        <div className="p-4 border-b border-gray-200">
+          <h1 className="text-xl font-semibold">FlowNotes</h1>
+        </div>
+        <div className="flex-grow overflow-y-auto">
+          <SidebarContent activeView={activeView} setActiveView={setActiveView} />
+        </div>
+        <div className="p-4 border-t border-gray-200">
+          <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveView('settings')}>
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
           </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[200px] sm:w-[240px]">
-          <SidebarContent activeView={activeView} setActiveView={setActiveView} handleLogout={handleLogout} />
-        </SheetContent>
-      </Sheet>
-
-      <div className="hidden md:flex flex-col w-[200px] p-4 bg-gray-100">
-        <SidebarContent activeView={activeView} setActiveView={setActiveView} handleLogout={handleLogout} />
+        </div>
       </div>
 
-      <div className="flex-grow overflow-auto p-4">
-        {activeView === 'home' && (
-          <div>
-            <h1 className="text-2xl font-bold mb-4">Welcome to FlowNotes</h1>
-            <p>This is your dashboard. Select an option from the sidebar to get started.</p>
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="sm">
+              <ChevronDown className="h-4 w-4 mr-2" />
+              All Notes
+            </Button>
+            <Button variant="outline" size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              New Note
+            </Button>
           </div>
-        )}
-        {activeView === 'simulations' && <SimulationCreator />}
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input className="pl-8" placeholder="Search" />
+            </div>
+            <Button variant="destructive" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto p-6">
+          {activeView === 'home' && <HomeView />}
+          {activeView === 'simulations' && <SimulationsView />}
+          {activeView === 'settings' && <SettingsView />}
+        </div>
       </div>
     </div>
   );
 }
 
 interface SidebarContentProps {
-  activeView: 'home' | 'simulations';
-  setActiveView: (view: 'home' | 'simulations') => void;
-  handleLogout: () => void;
+  activeView: 'home' | 'simulations' | 'settings';
+  setActiveView: (view: 'home' | 'simulations' | 'settings') => void;
 }
 
-function SidebarContent({ activeView, setActiveView, handleLogout }: SidebarContentProps) {
+function SidebarContent({ activeView, setActiveView }: SidebarContentProps) {
   return (
-    <div className="flex flex-col h-full">
-      <div className="text-2xl font-bold mb-8">FlowNotes</div>
-      <nav className="space-y-4 flex-grow">
-        <Button 
-          variant={activeView === 'home' ? 'default' : 'ghost'} 
-          className="w-full justify-start" 
-          onClick={() => setActiveView('home')}
-        >
-          <Home className="mr-2 h-4 w-4" />
-          Home
-        </Button>
-        <Button 
-          variant={activeView === 'simulations' ? 'default' : 'ghost'} 
-          className="w-full justify-start" 
-          onClick={() => setActiveView('simulations')}
-        >
-          <FlaskConical className="mr-2 h-4 w-4" />
-          Simulations
-        </Button>
-      </nav>
-      <Button variant="destructive" className="w-full justify-start" onClick={handleLogout}>
-        <LogOut className="mr-2 h-4 w-4" />
-        Logout
+    <nav className="space-y-1 p-4">
+      <Button 
+        variant={activeView === 'home' ? 'secondary' : 'ghost'} 
+        className="w-full justify-start" 
+        onClick={() => setActiveView('home')}
+      >
+        <Home className="mr-2 h-4 w-4" />
+        Home
       </Button>
+      <Button 
+        variant={activeView === 'simulations' ? 'secondary' : 'ghost'} 
+        className="w-full justify-start" 
+        onClick={() => setActiveView('simulations')}
+      >
+        <FlaskConical className="mr-2 h-4 w-4" />
+        Simulations
+      </Button>
+      {/* Add more sidebar items here */}
+    </nav>
+  );
+}
+
+function HomeView() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Welcome to FlowNotes</h2>
+      <p>This is your personal workspace. Start creating notes or run simulations.</p>
+    </div>
+  );
+}
+
+function SimulationsView() {
+  return (
+      <SimulationCreator />
+  );
+}
+
+function SettingsView() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Settings</h2>
+      <p>Manage your account and application settings.</p>
     </div>
   );
 }

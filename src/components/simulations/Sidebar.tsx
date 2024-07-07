@@ -3,7 +3,7 @@ import { ChevronUp, ChevronDown, GripHorizontal } from 'lucide-react';
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 220, y: 10 });
+  const [position, setPosition] = useState({ x: window.innerWidth - 220, y: window.innerHeight-1050 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
 
