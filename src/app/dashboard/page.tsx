@@ -103,7 +103,7 @@ function SidebarContent({ activeView, setActiveView, handleLogout }: SidebarCont
           Simulations
         </Button>
       </nav>
-      <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+      <Button variant="destructive" className="w-full justify-start" onClick={handleLogout}>
         <LogOut className="mr-2 h-4 w-4" />
         Logout
       </Button>

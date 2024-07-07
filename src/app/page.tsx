@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { ProductNavigation } from "@/components/ProductNavigation";
+import { ProductNavigation } from "@/components/home/ProductNavigation";
+import { Pricing } from "@/components/home/Pricing";
 import Login from '@/components/Login'; // Ensure this path is correct
 import {
   Dialog,
@@ -67,6 +68,7 @@ const Home: React.FC = () => {
         </div>
 
         <ProductNavigation />
+        <Pricing />
       </main>
 
       <footer className="bg-gray-800 text-white py-8 px-4">
