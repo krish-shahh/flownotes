@@ -3,7 +3,7 @@ import { ChevronUp, ChevronDown, GripHorizontal } from 'lucide-react';
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 220, y: window.innerHeight-1050 });
+  const [position, setPosition] = useState({ x: -210, y: 10 });
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<HTMLDivElement>(null);
 
@@ -22,10 +22,15 @@ const Sidebar = () => {
 
   const drag = (e: MouseEvent) => {
     if (isDragging && dragRef.current) {
-      setPosition({
-        x: e.clientX - dragRef.current.offsetWidth / 2,
-        y: e.clientY - 10
-      });
+      const parentRect = dragRef.current.offsetParent?.getBoundingClientRect();
+      if (parentRect) {
+        const newX = e.clientX - parentRect.left - dragRef.current.offsetWidth / 2;
+        const newY = e.clientY - parentRect.top - 10;
+        setPosition({
+          x: Math.max(-210, Math.min(newX, parentRect.width - 10)),
+          y: Math.max(10, Math.min(newY, parentRect.height - 10)),
+        });
+      }
     }
   };
 
@@ -39,9 +44,9 @@ const Sidebar = () => {
   }, [isDragging]);
 
   const sidebarStyle: React.CSSProperties = {
-    position: 'fixed',
+    position: 'absolute',
     top: `${position.y}px`,
-    left: `${position.x}px`,
+    right: `${-position.x}px`,
     padding: '15px',
     background: 'rgba(255, 255, 255, 0.8)',
     borderRadius: '5px',
@@ -50,6 +55,7 @@ const Sidebar = () => {
     width: '200px',
     height: collapsed ? '40px' : 'auto',
     overflow: 'hidden',
+    zIndex: 1000,
   };
 
   const componentStyle = {

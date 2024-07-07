@@ -9,6 +9,7 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { LoadingSpinner } from '@/components/misc/LoadingSpinner';
 import SimulationCreator from '@/components/simulations/SimulationCreator';
+import FromSettingsView from '@/components/SettingsView';
 
 export default function DashboardPage() {
   const [activeView, setActiveView] = useState<'home' | 'simulations' | 'settings'>('home');
@@ -146,8 +147,7 @@ function SimulationsView() {
 function SettingsView() {
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">Settings</h2>
-      <p>Manage your account and application settings.</p>
+      <FromSettingsView />
     </div>
   );
 }
