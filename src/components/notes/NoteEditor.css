@@ -1,0 +1,39 @@
+/* NoteEditor.css */
+.editor-content h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+  }
+  
+  .editor-content h2 {
+    font-size: 1.75em;
+    margin-bottom: 0.5em;
+  }
+  
+  .editor-content h3 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  
+  .editor-content p {
+    margin-bottom: 0.5em;
+  }
+  
+  .is-active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .button-group button {
+    margin-right: 4px;
+    padding: 4px 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .button-group button.is-active {
+    background-color: #007bff;
+    color: white;
+  }
+  

@@ -1,24 +1,28 @@
+// components/dashboard/DashboardPage.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Home, LogOut, FlaskConical, Settings, ChevronDown, Plus, Search } from 'lucide-react';
+import { Home, LogOut, FlaskConical, Settings, ChevronDown, Plus, Search, FileText  } from 'lucide-react';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { LoadingSpinner } from '@/components/misc/LoadingSpinner';
 import SimulationCreator from '@/components/simulations/SimulationCreator';
 import FromSettingsView from '@/components/SettingsView';
+import NoteEditor from '@/components/notes/NodeEditor';
 
 export default function DashboardPage() {
   const [activeView, setActiveView] = useState<'home' | 'simulations' | 'settings'>('home');
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        setUser(user);
         setLoading(false);
       } else {
         router.push('/');
@@ -113,8 +117,8 @@ function SidebarContent({ activeView, setActiveView }: SidebarContentProps) {
         className="w-full justify-start" 
         onClick={() => setActiveView('home')}
       >
-        <Home className="mr-2 h-4 w-4" />
-        Home
+        <FileText className="mr-2 h-4 w-4" />
+        Notes
       </Button>
       <Button 
         variant={activeView === 'simulations' ? 'secondary' : 'ghost'} 
@@ -131,16 +135,13 @@ function SidebarContent({ activeView, setActiveView }: SidebarContentProps) {
 
 function HomeView() {
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Welcome to FlowNotes</h2>
-      <p>This is your personal workspace. Start creating notes or run simulations.</p>
-    </div>
+    <NoteEditor />
   );
 }
 
 function SimulationsView() {
   return (
-      <SimulationCreator />
+    <SimulationCreator />
   );
 }
 
